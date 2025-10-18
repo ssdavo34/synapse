@@ -26,6 +26,7 @@ pytest==8.4.2
 pytest-asyncio==1.2.0
 pytest-cov==7.0.0
 
-# Database (for Day 3+)
-# chromadb==1.2.0
-# sqlalchemy==2.0.0
+# Database (Day 3)
+sqlalchemy==2.0.36
+aiosqlite==0.20.0
+qdrant-client==1.12.1

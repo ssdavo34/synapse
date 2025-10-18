@@ -76,6 +76,11 @@ class Settings(BaseSettings):
         env="ENVIRONMENT",
         description="실행 환경 (development/production)"
     )
+    debug_mode: bool = Field(
+        default=False,
+        env="DEBUG_MODE",
+        description="Debug mode (SQLAlchemy echo, verbose logging)"
+    )
     log_level: str = Field(
         default="INFO",
         env="LOG_LEVEL",
@@ -85,20 +90,37 @@ class Settings(BaseSettings):
     # ============================================================
     # 데이터베이스 경로 설정
     # ============================================================
-    vector_db_path: str = Field(
-        default="data/vector_db",
-        env="VECTOR_DB_PATH",
-        description="ChromaDB 벡터 데이터베이스 저장 경로"
+    database_url: str = Field(
+        default="sqlite:///data/db/synapse.db",
+        env="DATABASE_URL",
+        description="SQLAlchemy database URL"
     )
-    state_db_path: str = Field(
-        default="data/db/state.db",
-        env="STATE_DB_PATH",
-        description="SQLite 상태 데이터베이스 파일 경로"
+    qdrant_path: str = Field(
+        default="data/qdrant_storage",
+        env="QDRANT_PATH",
+        description="Qdrant local file storage path"
+    )
+    upload_dir: str = Field(
+        default="data/uploads",
+        env="UPLOAD_DIR",
+        description="File upload storage directory"
     )
     cache_dir: str = Field(
         default="data/cache",
         env="CACHE_DIR",
         description="캐시 파일 저장 디렉토리"
+    )
+
+    # Legacy paths (deprecated, for backward compatibility)
+    vector_db_path: str = Field(
+        default="data/vector_db",
+        env="VECTOR_DB_PATH",
+        description="[Deprecated] ChromaDB 벡터 데이터베이스 저장 경로"
+    )
+    state_db_path: str = Field(
+        default="data/db/state.db",
+        env="STATE_DB_PATH",
+        description="[Deprecated] SQLite 상태 데이터베이스 파일 경로"
     )
 
     # ============================================================
@@ -232,10 +254,10 @@ def ensure_directories():
         - upload_dir: 업로드 파일 저장
     """
     directories = [
-        settings.vector_db_path,
-        os.path.dirname(settings.state_db_path),  # DB 파일의 부모 디렉토리
-        settings.cache_dir,
+        settings.qdrant_path,
         settings.upload_dir,
+        settings.cache_dir,
+        "data/db",  # SQLite database directory
     ]
 
     for directory in directories:
