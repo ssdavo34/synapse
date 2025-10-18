@@ -16,6 +16,11 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field
 from typing import Optional
 import os
+from pathlib import Path
+
+# 프로젝트 루트 경로 계산 (backend/config.py 기준으로 상위 디렉토리)
+PROJECT_ROOT = Path(__file__).parent.parent
+ENV_FILE_PATH = PROJECT_ROOT / ".env"
 
 
 class Settings(BaseSettings):
@@ -171,9 +176,9 @@ class Settings(BaseSettings):
         description="업로드 파일 저장 디렉토리"
     )
 
-    # Pydantic v2 설정 방식
+    # Pydantic v2 설정 방식 (절대 경로 사용)
     model_config = SettingsConfigDict(
-        env_file=".env",  # 환경 변수 파일 경로
+        env_file=str(ENV_FILE_PATH),  # 환경 변수 파일 절대 경로
         env_file_encoding="utf-8",  # 인코딩
         case_sensitive=False,  # 환경 변수명 대소문자 구분 안 함
         extra="ignore"  # .env의 추가 필드 무시 (유연성)
