@@ -275,6 +275,93 @@ class EmbeddingService:
             "api_key_configured": bool(settings.openai_api_key)
         }
 
+    @staticmethod
+    def cosine_similarity(vec1: List[float], vec2: List[float]) -> float:
+        """
+        두 벡터 간 코사인 유사도 계산
+
+        코사인 유사도는 두 벡터가 같은 방향을 가리키는 정도를 측정합니다.
+        -1(완전 반대)에서 1(완전 동일)까지의 값을 가지며,
+        0은 직교(무관계)를 의미합니다.
+
+        Args:
+            vec1: 첫 번째 임베딩 벡터 (1536차원)
+            vec2: 두 번째 임베딩 벡터 (1536차원)
+
+        Returns:
+            float: 코사인 유사도 (-1 ~ 1)
+                - 1.0: 완전히 동일한 방향
+                - 0.0: 직교 (무관계)
+                - -1.0: 완전히 반대 방향
+
+        Raises:
+            ValueError: 벡터 길이가 다르거나 비어있는 경우
+
+        Examples:
+            >>> vec1 = [0.1, 0.2, 0.3]
+            >>> vec2 = [0.2, 0.4, 0.6]
+            >>> similarity = EmbeddingService.cosine_similarity(vec1, vec2)
+            >>> print(f"Similarity: {similarity:.3f}")
+            Similarity: 1.000
+        """
+        import numpy as np
+
+        # 입력 검증
+        if not vec1 or not vec2:
+            raise ValueError("Vectors cannot be empty")
+
+        if len(vec1) != len(vec2):
+            raise ValueError(f"Vector dimensions must match: {len(vec1)} != {len(vec2)}")
+
+        # numpy 배열로 변환
+        v1 = np.array(vec1, dtype=np.float64)
+        v2 = np.array(vec2, dtype=np.float64)
+
+        # 코사인 유사도 계산
+        # similarity = (v1 · v2) / (||v1|| × ||v2||)
+        dot_product = np.dot(v1, v2)
+        norm_v1 = np.linalg.norm(v1)
+        norm_v2 = np.linalg.norm(v2)
+
+        # 0 벡터 처리
+        if norm_v1 == 0 or norm_v2 == 0:
+            return 0.0
+
+        return float(dot_product / (norm_v1 * norm_v2))
+
+    def create_embedding(self, text: str) -> List[float]:
+        """
+        동기 방식 간편 래퍼 (Synchronous wrapper)
+
+        간단한 임베딩 생성을 위한 동기 메서드입니다.
+        내부적으로 asyncio를 사용하여 비동기 generate_embedding을 호출합니다.
+
+        Args:
+            text: 임베딩할 텍스트
+
+        Returns:
+            List[float]: 임베딩 벡터 (1536차원)
+
+        Examples:
+            >>> service = EmbeddingService()
+            >>> vector = service.create_embedding("Hello world")
+            >>> print(f"Dimension: {len(vector)}")
+            Dimension: 1536
+        """
+        import asyncio
+
+        async def _async_call():
+            return await self.generate_embedding(text)
+
+        # 새 이벤트 루프에서 실행
+        try:
+            loop = asyncio.get_event_loop()
+        except RuntimeError:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+
+        return loop.run_until_complete(_async_call())
+
 
 # ============================================================
 # 테스트 코드 (python -m backend.services.embedding_service 실행 시)
