@@ -36,8 +36,17 @@ from tenacity import (
 )
 import logging
 
-from backend.config import settings
-from backend.utils.logger import setup_logger
+# 유연한 import: 절대 경로 우선, 실패 시 상대 경로
+try:
+    from backend.config import settings
+    from backend.utils.logger import setup_logger
+except ModuleNotFoundError:
+    # backend 디렉토리에서 직접 실행 시
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+    from backend.config import settings
+    from backend.utils.logger import setup_logger
 
 
 class OpenAIClient:
