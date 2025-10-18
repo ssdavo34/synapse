@@ -14,7 +14,7 @@ OCR 서비스 (PDF 텍스트 추출)
     - 텍스트 정제 (공백, 특수문자)
 
 사용법:
-    from backend.services.ocr_service import OCRService
+    from services.ocr_service import OCRService
 
     service = OCRService()
     result = service.extract_text("data/uploads/document.pdf")
@@ -25,7 +25,11 @@ OCR 서비스 (PDF 텍스트 추출)
 import fitz  # PyMuPDF
 import os
 from typing import Dict, Any
-from backend.utils.logger import setup_logger
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from utils.logger import setup_logger
 
 
 class OCRService:

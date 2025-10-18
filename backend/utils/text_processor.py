@@ -18,7 +18,7 @@
     - 한글 및 영어 텍스트 모두 지원
 
 사용법:
-    from backend.utils.text_processor import TextProcessor
+    from utils.text_processor import TextProcessor
 
     processor = TextProcessor()
     chunks = processor.chunk_text(long_text, chunk_size=500, overlap=50)
@@ -26,7 +26,11 @@
 
 import re
 from typing import List
-from backend.utils.logger import setup_logger
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from utils.logger import setup_logger
 
 
 class TextProcessor:

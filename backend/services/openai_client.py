@@ -36,8 +36,12 @@ from tenacity import (
 )
 import logging
 
-from backend.config import settings
-from backend.utils.logger import setup_logger
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from config import settings
+from utils.logger import setup_logger
 
 
 class OpenAIClient:

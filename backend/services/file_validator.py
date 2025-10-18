@@ -23,8 +23,10 @@ import os
 import mimetypes
 from typing import Dict, List, Optional, Any
 from pathlib import Path
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from backend.utils.logger import setup_logger
+from utils.logger import setup_logger
 
 # Logger 설정
 logger = setup_logger("FileValidator")
