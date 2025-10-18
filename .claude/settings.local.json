@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add PROJECT_PLAN.md README.md)",
+      "Bash(git commit -m \"docs: Add comprehensive project documentation\n\n- Add PROJECT_PLAN.md with detailed architecture and roadmap\n- Enhance README.md with comprehensive usage guide\n- Include API documentation and performance metrics\n- Add installation and setup instructions\")",
+      "Bash(git log -1 --format=\"%H\")",
+      "Bash(git add PROJECT_ROADMAP_V2_BASIC.md)",
+      "Bash(git commit -m \"docs: Add v2.0 basic roadmap\n\n- Complete requirements analysis based on course objectives\n- 7 core features: summary, Q&A, quiz, recommendations, diagnosis, planning, conversation summary\n- 4-day development roadmap with detailed phases\n- Technical stack updates with new dependencies\n- API endpoints and agent system design\n- Demo scenario for course presentation\n- Clear scope with basic vs advanced features\n- Cost budget and KPI targets\")",
+      "Bash(git add PROJECT_ROADMAP_V2_ADVANCED.md)",
+      "Bash(git commit -m \"docs: Add v2.0 advanced roadmap with extended features\n\n- 4 quiz types: multiple choice, short answer, true/false, essay\n- AI-based grading system with hybrid approach\n- Smart OCR fallback strategy (PyMuPDF → Google Vision)\n- Perplexity-style no-answer UX with recommendations\n- Learning analytics and weakness diagnosis\n- Automated wrong answer notebook\n- Advanced cost monitoring and optimization\n- Preview of v3.0 voice features (TTS/STT/podcast)\n- Detailed implementation examples and code snippets\n- 7-day development roadmap\n- Cost analysis: $42/month for 100 users\")"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
