@@ -4,7 +4,7 @@ Database Models Package
 SQLAlchemy ORM models for SynapseSimple v2.0
 """
 
-from backend.models.database_models import (
+from models.database_models import (
     Base,
     User,
     Document,

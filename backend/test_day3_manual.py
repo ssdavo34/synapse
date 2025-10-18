@@ -10,10 +10,10 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import asyncio
-from backend.config import settings, ensure_directories
-from backend.services.database_service import db_service
-from backend.services.vector_store import vector_store
-from backend.utils.logger import setup_logger
+from config import settings, ensure_directories
+from services.database_service import db_service
+from services.vector_store import vector_store
+from utils.logger import setup_logger
 
 
 async def test_day3_integration():
