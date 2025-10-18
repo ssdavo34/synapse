@@ -148,8 +148,11 @@ class DocumentManager:
                 file_hash=file_hash
             )
 
+            # Extract document_id immediately (before session closes)
+            document_id = document.id
+
             # Update status to processing
-            db_service.update_document(document.id, status="processing")
+            db_service.update_document(document_id, status="processing")
 
             # Step 5: Extract text with OCR
             self.logger.info("Step 5/7: Extracting text...")
@@ -164,7 +167,7 @@ class DocumentManager:
 
                 # Update document with extracted text
                 db_service.update_document(
-                    document.id,
+                    document_id,
                     full_text=full_text,
                     text_length=len(full_text),
                     page_count=page_count
@@ -173,14 +176,14 @@ class DocumentManager:
             except Exception as e:
                 self.logger.error(f"OCR failed: {e}")
                 db_service.update_document(
-                    document.id,
+                    document_id,
                     status="failed",
                     error_message=f"Text extraction failed: {str(e)}"
                 )
                 return {
                     "success": False,
                     "error": f"Text extraction failed: {str(e)}",
-                    "document_id": document.id,
+                    "document_id": document_id,
                     "step": "ocr"
                 }
 
@@ -203,7 +206,7 @@ class DocumentManager:
                     char_count = len(chunk_content)
 
                     chunks_data.append({
-                        "document_id": document.id,
+                        "document_id": document_id,
                         "content": chunk_content,
                         "chunk_index": index,
                         "token_count": token_count,
@@ -215,7 +218,7 @@ class DocumentManager:
 
                 # Update document chunk count
                 db_service.update_document(
-                    document.id,
+                    document_id,
                     chunk_count=len(created_chunks)
                 )
 
@@ -224,14 +227,14 @@ class DocumentManager:
             except Exception as e:
                 self.logger.error(f"Chunking failed: {e}")
                 db_service.update_document(
-                    document.id,
+                    document_id,
                     status="failed",
                     error_message=f"Text chunking failed: {str(e)}"
                 )
                 return {
                     "success": False,
                     "error": f"Text chunking failed: {str(e)}",
-                    "document_id": document.id,
+                    "document_id": document_id,
                     "step": "chunking"
                 }
 
@@ -266,25 +269,25 @@ class DocumentManager:
             except Exception as e:
                 self.logger.error(f"Embedding generation failed: {e}")
                 db_service.update_document(
-                    document.id,
+                    document_id,
                     status="failed",
                     error_message=f"Embedding generation failed: {str(e)}"
                 )
                 return {
                     "success": False,
                     "error": f"Embedding generation failed: {str(e)}",
-                    "document_id": document.id,
+                    "document_id": document_id,
                     "step": "embedding"
                 }
 
             # Mark document as completed
-            db_service.update_document(document.id, status="completed")
+            db_service.update_document(document_id, status="completed")
 
-            self.logger.info(f"✅ Document processing completed: {document.id}")
+            self.logger.info(f"✅ Document processing completed: {document_id}")
 
             return {
                 "success": True,
-                "document_id": document.id,
+                "document_id": document_id,
                 "title": title,
                 "chunk_count": len(created_chunks),
                 "vector_count": vector_count,
