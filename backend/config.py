@@ -187,6 +187,23 @@ class Settings(BaseSettings):
 settings = Settings()
 
 
+def get_settings() -> Settings:
+    """
+    설정 인스턴스 가져오기
+
+    테스트 및 의존성 주입에서 사용하기 위한 함수입니다.
+
+    Returns:
+        Settings: 애플리케이션 설정 인스턴스
+
+    Examples:
+        >>> from backend.config import get_settings
+        >>> settings = get_settings()
+        >>> print(settings.openai_api_key)
+    """
+    return settings
+
+
 # ============================================================
 # 디렉토리 자동 생성 함수
 # ============================================================
