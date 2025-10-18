@@ -12,7 +12,7 @@
     api_key = settings.openai_api_key
 """
 
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field
 from typing import Optional
 import os
@@ -171,12 +171,13 @@ class Settings(BaseSettings):
         description="업로드 파일 저장 디렉토리"
     )
 
-    class Config:
-        """Pydantic 설정 클래스"""
-        env_file = ".env"  # 환경 변수 파일 경로
-        env_file_encoding = "utf-8"  # 인코딩
-        case_sensitive = False  # 환경 변수명 대소문자 구분 안 함
-        extra = "ignore"  # .env의 추가 필드 무시 (유연성)
+    # Pydantic v2 설정 방식
+    model_config = SettingsConfigDict(
+        env_file=".env",  # 환경 변수 파일 경로
+        env_file_encoding="utf-8",  # 인코딩
+        case_sensitive=False,  # 환경 변수명 대소문자 구분 안 함
+        extra="ignore"  # .env의 추가 필드 무시 (유연성)
+    )
 
 
 # ============================================================
