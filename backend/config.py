@@ -66,6 +66,11 @@ class Settings(BaseSettings):
     # ============================================================
     # 애플리케이션 환경 설정
     # ============================================================
+    project_name: str = Field(
+        default="SynapseSimple",
+        env="PROJECT_NAME",
+        description="프로젝트 이름"
+    )
     environment: str = Field(
         default="development",
         env="ENVIRONMENT",
