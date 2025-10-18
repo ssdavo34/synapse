@@ -278,6 +278,54 @@ class OpenAIClient:
         # 4글자 ≈ 1토큰 (영어 기준)
         return len(text) // 4
 
+    def create_completion(
+        self,
+        prompt: str,
+        model: Optional[str] = None,
+        temperature: float = 0.7,
+        max_tokens: Optional[int] = None
+    ) -> str:
+        """
+        동기 방식 간편 래퍼 (Synchronous wrapper)
+
+        간단한 텍스트 완성 요청을 위한 동기 메서드입니다.
+        내부적으로 asyncio를 사용하여 비동기 chat_completion을 호출합니다.
+
+        Args:
+            prompt: 프롬프트 텍스트
+            model: 사용할 모델 (기본값: None, default_model 사용)
+            temperature: 창의성 (0.0~2.0)
+            max_tokens: 최대 토큰 수
+
+        Returns:
+            str: 응답 텍스트
+
+        Examples:
+            >>> client = OpenAIClient()
+            >>> response = client.create_completion("Say hello in one word")
+            >>> print(response)
+            Hello!
+        """
+        import asyncio
+
+        async def _async_call():
+            response = await self.chat_completion(
+                messages=[{"role": "user", "content": prompt}],
+                model=model,
+                temperature=temperature,
+                max_tokens=max_tokens
+            )
+            return response.choices[0].message.content
+
+        # 새 이벤트 루프에서 실행
+        try:
+            loop = asyncio.get_event_loop()
+        except RuntimeError:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+
+        return loop.run_until_complete(_async_call())
+
     def get_model_info(self) -> Dict[str, Any]:
         """
         현재 설정된 모델 정보 반환
