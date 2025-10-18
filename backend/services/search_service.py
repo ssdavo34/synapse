@@ -14,7 +14,7 @@ import json
 from services.vector_store_service import vector_store_service
 from services.database_service import db_service
 from services.embedding_service import EmbeddingService
-from services.text_processor import TextProcessor
+from utils.text_processor import TextProcessor
 from utils.logger import setup_logger
 
 

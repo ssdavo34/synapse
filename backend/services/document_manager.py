@@ -23,7 +23,7 @@ from datetime import datetime
 from services.database_service import db_service
 from services.file_validator import FileValidator
 from services.ocr_service import OCRService
-from services.text_processor import TextProcessor
+from utils.text_processor import TextProcessor
 from services.embedding_service import EmbeddingService
 from services.vector_store_service import vector_store_service
 from utils.logger import setup_logger
