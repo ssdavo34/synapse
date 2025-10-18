@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+.venv/
+env/
+ENV/
+
+# 환경 변수
+.env
+
+# 데이터 폴더 (용량 큰 파일)
+data/uploads/*.pdf
+data/vector_db/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 로그
+*.log
