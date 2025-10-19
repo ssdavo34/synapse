@@ -216,13 +216,26 @@ class DocumentManager:
                 # Bulk insert chunks
                 created_chunks = db_service.create_chunks_bulk(chunks_data)
 
+                # Extract chunk info immediately (before session closes)
+                chunk_count = len(created_chunks)
+                chunks_info = [
+                    {
+                        "id": chunk.id,
+                        "document_id": chunk.document_id,
+                        "content": chunk.content,
+                        "chunk_index": chunk.chunk_index,
+                        "token_count": chunk.token_count
+                    }
+                    for chunk in created_chunks
+                ]
+
                 # Update document chunk count
                 db_service.update_document(
                     document_id,
-                    chunk_count=len(created_chunks)
+                    chunk_count=chunk_count
                 )
 
-                self.logger.info(f"Created {len(created_chunks)} chunks")
+                self.logger.info(f"Created {chunk_count} chunks")
 
             except Exception as e:
                 self.logger.error(f"Chunking failed: {e}")
@@ -241,27 +254,15 @@ class DocumentManager:
             # Step 7: Generate embeddings and store vectors
             self.logger.info("Step 7/7: Generating embeddings and storing vectors...")
             try:
-                # Prepare chunks for vector service
-                chunks_for_vectors = [
-                    {
-                        "id": chunk.id,
-                        "document_id": chunk.document_id,
-                        "content": chunk.content,
-                        "chunk_index": chunk.chunk_index,
-                        "token_count": chunk.token_count
-                    }
-                    for chunk in created_chunks
-                ]
-
-                # Generate embeddings and upsert to vector store
-                vector_count = await self.vector_service.upsert_chunks(chunks_for_vectors)
+                # Generate embeddings and upsert to vector store (using extracted chunks_info)
+                vector_count = await self.vector_service.upsert_chunks(chunks_info)
 
                 # Update chunks with embedding status
-                for chunk in created_chunks:
+                for chunk_info in chunks_info:
                     db_service.update_chunk(
-                        chunk.id,
+                        chunk_info["id"],
                         has_embedding=True,
-                        vector_id=f"chunk_{chunk.id}"
+                        vector_id=f"chunk_{chunk_info['id']}"
                     )
 
                 self.logger.info(f"Stored {vector_count} vectors")
@@ -289,7 +290,7 @@ class DocumentManager:
                 "success": True,
                 "document_id": document_id,
                 "title": title,
-                "chunk_count": len(created_chunks),
+                "chunk_count": chunk_count,
                 "vector_count": vector_count,
                 "page_count": page_count,
                 "text_length": len(full_text),
