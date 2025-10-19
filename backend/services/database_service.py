@@ -93,9 +93,13 @@ class DatabaseService:
         with self.get_session() as session:
             user = User(email=email, name=name)
             session.add(user)
-            session.flush()
+            session.commit()
             session.refresh(user)
-            self.logger.info(f"User created: {user.id} - {email}")
+            user_id = user.id  # Extract ID before session closes
+            self.logger.info(f"User created: {user_id} - {email}")
+
+            # Make object usable outside session
+            session.expunge(user)
             return user
 
     def get_user(self, user_id: int) -> Optional[User]:
@@ -303,16 +307,23 @@ class DatabaseService:
                 document_id=document_id
             )
             session.add(chat)
-            session.flush()
+            session.commit()
             session.refresh(chat)
-            self.logger.info(f"Chat created: {chat.id} - {title}")
+            chat_id = chat.id  # Extract ID before session closes
+            self.logger.info(f"Chat created: {chat_id} - {title}")
+
+            # Make object usable outside session
+            session.expunge(chat)
             return chat
 
     def get_chat(self, chat_id: int) -> Optional[Chat]:
         """Get chat by ID"""
         with self.get_session() as session:
             stmt = select(Chat).where(Chat.id == chat_id)
-            return session.scalar(stmt)
+            chat = session.scalar(stmt)
+            if chat:
+                session.expunge(chat)
+            return chat
 
     def list_chats(
         self,
@@ -327,7 +338,20 @@ class DatabaseService:
                 Chat.user_id == user_id,
                 Chat.status == status
             ).order_by(Chat.updated_at.desc()).offset(skip).limit(limit)
-            return list(session.scalars(stmt))
+            chats = list(session.scalars(stmt))
+            # Expunge all chats to make them usable outside session
+            for chat in chats:
+                session.expunge(chat)
+            return chats
+
+    def get_user_chats(
+        self,
+        user_id: int,
+        limit: int = 20,
+        offset: int = 0
+    ) -> List[Chat]:
+        """Get user's chats (alias for list_chats)"""
+        return self.list_chats(user_id, skip=offset, limit=limit)
 
     def update_chat(self, chat_id: int, **kwargs) -> Optional[Chat]:
         """Update chat fields"""
@@ -398,7 +422,21 @@ class DatabaseService:
             if limit:
                 stmt = stmt.limit(limit)
 
-            return list(session.scalars(stmt))
+            messages = list(session.scalars(stmt))
+            # Expunge all messages to make them usable outside session
+            for message in messages:
+                session.expunge(message)
+            return messages
+
+    def get_chat_messages(
+        self,
+        chat_id: int,
+        limit: Optional[int] = None,
+        offset: int = 0
+    ) -> List[Message]:
+        """Get chat messages (alias for list_messages)"""
+        # Note: offset not implemented in list_messages, just use limit
+        return self.list_messages(chat_id, limit=limit)
 
     def get_recent_messages(self, chat_id: int, limit: int = 10) -> List[Message]:
         """Get recent messages for context"""

@@ -448,6 +448,51 @@ class SearchService:
             return {}
 
 
+    def semantic_search_sync(
+        self,
+        query: str,
+        user_id: Optional[int] = None,
+        document_id: Optional[int] = None,
+        limit: int = 5,
+        score_threshold: float = 0.7,
+        include_context: bool = False,
+        max_context_tokens: int = 2000
+    ) -> Dict[str, Any]:
+        """
+        Synchronous version of semantic_search for non-async contexts
+
+        Args:
+            query: Search query text
+            user_id: Filter by user (optional)
+            document_id: Filter by specific document (optional)
+            limit: Maximum number of results
+            score_threshold: Minimum similarity score (0-1)
+            include_context: Whether to build RAG context
+            max_context_tokens: Maximum tokens in context
+
+        Returns:
+            Search results dictionary
+        """
+        import asyncio
+        try:
+            loop = asyncio.get_event_loop()
+        except RuntimeError:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+
+        return loop.run_until_complete(
+            self.semantic_search(
+                query=query,
+                user_id=user_id,
+                document_id=document_id,
+                limit=limit,
+                score_threshold=score_threshold,
+                include_context=include_context,
+                max_context_tokens=max_context_tokens
+            )
+        )
+
+
 # Global search service instance
 search_service = SearchService()
 
